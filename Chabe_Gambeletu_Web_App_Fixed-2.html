@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="am">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b5cab">
+<title>ጫቤ ጋምቤልቱ - የሥራ ሠራተኞችና ቴክኖሎጂ ልማት</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,"Noto Sans Ethiopic",sans-serif;background:#f4f7fb;color:#172033}
+header{background:#0b5cab;color:white;padding:18px 5%;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+header h1{font-size:20px;margin:0}.nav button{border:0;background:white;color:#0b5cab;padding:9px 13px;border-radius:8px;margin:3px;cursor:pointer}
+.hero{padding:42px 5%;background:linear-gradient(135deg,#0b5cab,#1687d9);color:white}.hero h2{font-size:30px;margin:0 0 10px}.hero p{max-width:700px;line-height:1.7}
+.container{max-width:1100px;margin:25px auto;padding:0 16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.card{background:white;padding:22px;border-radius:14px;box-shadow:0 4px 15px #00000012}.card h3{margin-top:0}
+section{display:none}section.active{display:block}.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.form div{display:flex;flex-direction:column;gap:6px}input,select{padding:11px;border:1px solid #ccd5e0;border-radius:8px;font-size:15px}button.primary{background:#0b5cab;color:white;border:0;padding:11px 18px;border-radius:8px;cursor:pointer}
+table{width:100%;border-collapse:collapse;background:white}th,td{padding:10px;border-bottom:1px solid #e5e9ef;text-align:left}th{background:#eef5fc}
+footer{text-align:center;padding:25px;color:#667085}
+</style>
+</head>
+<body>
+<header>
+<h1>ጫቤ ጋምቤልቱ ወረዳ</h1>
+<div class="nav">
+<button onclick="show('home')">ዋና ገጽ</button>
+<button onclick="show('register')">ምዝገባ</button>
+<button onclick="show('admin')">Admin</button>
+</div>
+</header>
+
+<section id="home" class="active">
+<div class="hero"><h2>የሥራ ሠራተኞችና ቴክኖሎጂ ልማት ጽ/ቤት</h2>
+<p>የሥራ ፈላጊዎችን ምዝገባ፣ ልየታ እና የሥራ ዕድል መረጃ በዲጂታል መንገድ ለማስተዳደር የተዘጋጀ Web Application።</p>
+<button class="primary" onclick="show('register')">የሥራ ፈላጊ ይመዝገቡ</button></div>
+<div class="container"><div class="grid">
+<div class="card"><h3>👥 የወጣቶች ልየታ</h3><p>የሥራ ፈላጊዎችን መረጃ መመዝገብ።</p></div>
+<div class="card"><h3>📊 Dashboard</h3><p>የምዝገባ ቁጥርና ስታቲስቲክስ ማየት።</p></div>
+<div class="card"><h3>📄 ሪፖርት</h3><p>የተመዘገቡ መረጃዎችን ማጣራትና ሪፖርት ማዘጋጀት።</p></div>
+</div></div>
+</section>
+
+<section id="register">
+<div class="container"><div class="card"><h2>የሥራ ፈላጊ ምዝገባ</h2>
+<form id="regForm" class="form">
+<div><label>ሙሉ ስም</label><input id="name" required></div>
+<div><label>ስልክ</label><input id="phone" required></div>
+<div><label>ፆታ</label><select id="sex"><option>ወንድ</option><option>ሴት</option></select></div>
+<div><label>ዕድሜ</label><input id="age" type="number" required></div>
+<div><label>ቀበሌ</label><input id="kebele" required></div>
+<div><label>የትምህርት ደረጃ</label><input id="education"></div>
+<div><label>ሙያ/ክህሎት</label><input id="skill"></div>
+<div style="justify-content:end"><button class="primary" type="submit">መዝግብ</button></div>
+</form><p id="msg"></p></div></div>
+</section>
+
+<section id="admin">
+<div class="container"><div class="card" id="login">
+<h2>🔐 Admin Login</h2><input id="user" placeholder="Username"><br><br><input id="pass" type="password" placeholder="Password"><br><br><button class="primary" onclick="login()">ግባ</button><p id="loginMsg"></p>
+</div>
+<div id="dash" style="display:none"><div class="grid">
+<div class="card"><h3>ጠቅላላ ምዝገባ</h3><h2 id="count">0</h2></div>
+<div class="card"><h3>ወንድ</h3><h2 id="male">0</h2></div>
+<div class="card"><h3>ሴት</h3><h2 id="female">0</h2></div>
+</div><br><div class="card"><h2>የተመዘገቡ ሰዎች</h2><table><thead><tr><th>ስም</th><th>ስልክ</th><th>ፆታ</th><th>ዕድሜ</th><th>ቀበሌ</th><th>ክህሎት</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+</div></section>
+<footer>© 2026 ጫቤ ጋምቤልቱ ወረዳ የሥራ ሠራተኞችና ቴክኖሎጂ ልማት ጽ/ቤት</footer>
+
+<script>
+"use strict";
+
+const KEY = "chabe_workers";
+
+function getData() {
+  try {
+    return JSON.parse(localStorage.getItem(KEY) || "[]");
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveData(items) {
+  localStorage.setItem(KEY, JSON.stringify(items));
+}
+
+function el(id) {
+  return document.getElementById(id);
+}
+
+function show(id) {
+  document.querySelectorAll("section").forEach(function(section) {
+    section.classList.remove("active");
+  });
+  const target = el(id);
+  if (target) target.classList.add("active");
+  if (id === "admin") refresh();
+}
+
+el("regForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  const items = getData();
+
+  items.push({
+    name: el("name").value.trim(),
+    phone: el("phone").value.trim(),
+    sex: el("sex").value,
+    age: el("age").value,
+    kebele: el("kebele").value.trim(),
+    education: el("education").value.trim(),
+    skill: el("skill").value.trim()
+  });
+
+  saveData(items);
+  el("msg").textContent = "✅ በትክክል ተመዝግቧል።";
+  this.reset();
+});
+
+function login() {
+  const username = el("user").value.trim();
+  const password = el("pass").value;
+
+  if (username === "admin" && password === "chabbe@@1234") {
+    el("login").style.display = "none";
+    el("dash").style.display = "block";
+    el("loginMsg").textContent = "";
+    refresh();
+  } else {
+    el("loginMsg").textContent =
+      "❌ Username ወይም Password ትክክል አይደለም።";
+  }
+}
+
+function refresh() {
+  const items = getData();
+
+  el("count").textContent = items.length;
+  el("male").textContent =
+    items.filter(function(x) { return x.sex === "ወንድ"; }).length;
+  el("female").textContent =
+    items.filter(function(x) { return x.sex === "ሴት"; }).length;
+
+  el("rows").innerHTML = items.map(function(x) {
+    return "<tr>" +
+      "<td>" + escapeHtml(x.name) + "</td>" +
+      "<td>" + escapeHtml(x.phone) + "</td>" +
+      "<td>" + escapeHtml(x.sex) + "</td>" +
+      "<td>" + escapeHtml(x.age) + "</td>" +
+      "<td>" + escapeHtml(x.kebele) + "</td>" +
+      "<td>" + escapeHtml(x.skill || "") + "</td>" +
+      "</tr>";
+  }).join("");
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+</script>
+</body></html>
